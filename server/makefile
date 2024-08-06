@@ -3,4 +3,3 @@ migrate:
 
 db_reset:
 	./script/reset_db.sh
-
