@@ -85,8 +85,8 @@ func createTask(c echo.Context, db *sql.DB) error {
 		return err
 	}
 
-	// TODO: ここにSQL文を書く
-	sqlIns := ""
+	//　新しいタスクを追加する
+	sqlIns := `INSERT INTO tasks(text) VALUES (?);`
 
 	// データベースにデータを挿入
 	result, err := db.Exec(sqlIns, createTaskInput.Text)
@@ -104,8 +104,8 @@ func createTask(c echo.Context, db *sql.DB) error {
 
 	// 挿入されたデータを取得
 	var task Task
-	// TODO: ここにSQL文を書く
-	sqlSelect := ""
+	// tasksの取得
+	sqlSelect := `SELECT id, text, completed_at, deleted_at, created_at, updeted_at FROM tasks WHERE id = ?;`
 	err = db.QueryRow(sqlSelect, lastInsertId).Scan(&task.ID, &task.Text, &task.CompletedAt, &task.DeletedAt, &task.CreatedAt, &task.UpdatedAt)
 	if err != nil {
 		slog.Error("Fail to retrieve task", "error", err)
