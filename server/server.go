@@ -131,21 +131,24 @@ func getTasks(c echo.Context, db *sql.DB) error {
 	}
 
 	defer rows.Close()
-
-	var tasks []Task // tasksを定義
+	// tasksを定義
+	var tasks []Task
 
 	//取得結果
 	for rows.Next() {
 		var task Task
-		//すべてのタスクをいれる詰め替え作業はfor文の中
+
 		err = rows.Scan(&task.ID, &task.Text, &task.CompletedAt, &task.DeletedAt, &task.CreatedAt, &task.UpdatedAt)
+		if err != nil {
+		}
+		// tasksにtaskを詰め込む
+		tasks = append(tasks, task)
+
+		err = rows.Err()
 		if err != nil {
 			slog.Error("Fail to read from the database", "error", err)
 			return err
 		}
-		fmt.Println("rows.Next()がtrueだったよ")
-
-		tasks = append(tasks, task) // tasksにtaskを詰め込む
 	}
 
 	return c.JSON(http.StatusOK, tasks)
