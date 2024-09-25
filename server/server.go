@@ -144,13 +144,13 @@ func getTasks(c echo.Context, db *sql.DB) error {
 		// tasksにtaskを詰め込む
 		tasks = append(tasks, task)
 
-		err = rows.Err()
-		if err != nil {
-			slog.Error("Fail to read from the database", "error", err)
-			return err
-		}
 	}
 
+	err = rows.Err()
+	if err != nil {
+		slog.Error("Fail to read from the database", "error", err)
+		return err
+	}
 	return c.JSON(http.StatusOK, tasks)
 
 }
