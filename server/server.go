@@ -53,6 +53,9 @@ func main() {
 	e.POST("/task", func(c echo.Context) error {
 		return createTask(c, db)
 	})
+	e.GET("/tasks", func(c echo.Context) error {
+		return getTasks(c, db)
+	})
 
 	// サーバーをポート番号1323で起動
 	e.Logger.Fatal(e.Start(":1323"))
@@ -114,4 +117,37 @@ func createTask(c echo.Context, db *sql.DB) error {
 
 	// クライアントにタスクを返す
 	return c.JSON(http.StatusOK, task)
+}
+
+// getTasks タスクを取得するハンドラー
+func getTasks(c echo.Context, db *sql.DB) error {
+
+	// tasksテーブルの全てのデータを取得してくるSQL
+	sqlSelect := `SELECT * FROM tasks;`
+	rows, err := db.Query(sqlSelect)
+	if err != nil {
+		slog.Error("Fail to retrieve task", "error", err)
+		return err
+	}
+
+	defer rows.Close()
+
+	var tasks []Task // tasksを定義
+
+	//取得結果
+	for rows.Next() {
+		var task Task
+		//すべてのタスクをいれる詰め替え作業はfor文の中
+		err = rows.Scan(&task.ID, &task.Text, &task.CompletedAt, &task.DeletedAt, &task.CreatedAt, &task.UpdatedAt)
+		if err != nil {
+			slog.Error("Fail to read from the database", "error", err)
+			return err
+		}
+		fmt.Println("rows.Next()がtrueだったよ")
+
+		tasks = append(tasks, task) // tasksにtaskを詰め込む
+	}
+
+	return c.JSON(http.StatusOK, tasks)
+
 }
