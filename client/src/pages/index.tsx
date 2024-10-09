@@ -94,18 +94,39 @@ export default function Home() {
     fetchTasks();
   }, []);
 
-  const toggleTask = async (id: string | number) => {
+  const completeTask = async (id: string | number) => {
     try {
-      const response = await fetch(`http://localhost:1323/tasks/${id}/toggle`, {
-        method: "PUT",
-      });
+      const response = await fetch(
+        `http://localhost:1323/task/${id}/complete`,
+        {
+          method: "PATCH",
+        }
+      );
       if (!response.ok) {
-        throw new Error("Failed to toggle task");
+        throw new Error("Failed to complete task");
       }
       fetchTasks();
     } catch (error) {
-      alert("タスクの状態を更新できませんでした");
-      console.error("Error toggling task:", error);
+      alert("タスクの状態を完了にできませんでした");
+      console.error("Error completing task:", error);
+    }
+  };
+
+  const unCompleteTask = async (id: string | number) => {
+    try {
+      const response = await fetch(
+        `http://localhost:1323/task/${id}/uncomplete`,
+        {
+          method: "PATCH",
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to uncomplete task");
+      }
+      fetchTasks();
+    } catch (error) {
+      alert("タスクの状態を未完了にできませんでした");
+      console.error("Error uncompleting task:", error);
     }
   };
 
@@ -151,7 +172,11 @@ export default function Home() {
             <input
               type="checkbox"
               checked={!!task.completedAt}
-              onChange={() => toggleTask(task.id)}
+              onChange={() =>
+                !!task.completedAt
+                  ? unCompleteTask(task.id)
+                  : completeTask(task.id)
+              }
               className="mr-2"
             />
             {task.text}
